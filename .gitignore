@@ -3,3 +3,4 @@ __pycache__/
 estado/
 achados.txt
 .env
+topico_ntfy.txt
