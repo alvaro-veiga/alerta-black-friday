@@ -82,3 +82,29 @@ def pelando():
             "link": p.get("url", ""),
         })
     return ofertas
+
+
+def kabum(termo):
+    """Produtos disponíveis numa busca da Kabum, com o preço atual."""
+    url = "https://www.kabum.com.br/busca/" + urllib.parse.quote(termo.replace(" ", "-"))
+    dados = next_data(baixar(url)).get("data") or {}
+    if isinstance(dados, str):
+        dados = json.loads(dados)
+    itens = []
+    for x in (dados.get("catalogServer") or {}).get("data", []):
+        if not x.get("available"):
+            continue
+        preco = x.get("priceWithDiscount") or x.get("price")
+        oferta = x.get("offer") or {}
+        if isinstance(oferta, dict) and oferta.get("priceWithDiscount"):
+            preco = min(preco, oferta["priceWithDiscount"])
+        itens.append({
+            "id": "kb-%s" % x.get("code"),
+            "titulo": x.get("name", ""),
+            "preco": preco,
+            "cupom": None,
+            "loja": "KaBuM!",
+            "foto": x.get("image"),
+            "link": "https://www.kabum.com.br/produto/%s/%s" % (x.get("code"), x.get("friendlyName", "")),
+        })
+    return itens
