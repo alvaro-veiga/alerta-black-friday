@@ -8,6 +8,7 @@ toca no celular pelo app ntfy.
 
     python alerta.py            roda até apertar Ctrl+C
     python alerta.py --teste    uma passada só, sem avisar ninguém
+    python alerta.py --teste-celular   manda um aviso de teste pro celular
 
 Configuração por variável de ambiente:
     NTFY_TOPICO       nome do canal no app ntfy (ou arquivo topico_ntfy.txt)
@@ -152,6 +153,12 @@ def passada_kabum(precos, silencioso):
 
 
 def main():
+    if "--teste-celular" in sys.argv:
+        avisos.celular(topico_ntfy(), "Teste do alerta Black Friday",
+                       "Se chegou aqui, o celular vai tocar nas promoções.",
+                       "https://www.kabum.com.br/busca/ballistix", None, True)
+        print("Teste enviado para o celular.")
+        return
     teste = "--teste" in sys.argv
     vistos = set() if teste else set(ler_json(ARQ_VISTOS, []))
     precos = {} if teste else ler_json(ARQ_PRECOS, {})

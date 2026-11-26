@@ -8,6 +8,10 @@ on:
       duracao:
         description: "Minutos rodando (340 = máximo)"
         default: "340"
+      testar_celular:
+        description: "Mandar aviso de teste pro celular antes"
+        type: boolean
+        default: false
 
 concurrency:
   group: alerta
@@ -30,6 +34,12 @@ jobs:
           path: estado
           key: estado-${{ github.run_id }}
           restore-keys: estado-
+
+      - name: Teste do celular
+        if: ${{ inputs.testar_celular }}
+        env:
+          NTFY_TOPICO: ${{ secrets.NTFY_TOPICO }}
+        run: python alerta.py --teste-celular
 
       - name: Vigia ofertas
         env:
