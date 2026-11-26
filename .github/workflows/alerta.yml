@@ -1,0 +1,42 @@
+name: alerta
+
+on:
+  schedule:
+    - cron: "0 * * * *"   # tenta a cada hora; só roda um por vez
+  workflow_dispatch:
+
+concurrency:
+  group: alerta
+  cancel-in-progress: false
+
+jobs:
+  vigiar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 355
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Recupera estado da última execução
+        uses: actions/cache/restore@v4
+        with:
+          path: estado
+          key: estado-${{ github.run_id }}
+          restore-keys: estado-
+
+      - name: Vigia ofertas
+        env:
+          NTFY_TOPICO: ${{ secrets.NTFY_TOPICO }}
+          MODO: celular
+          DURACAO_MINUTOS: "340"
+        run: python alerta.py
+
+      - name: Salva estado
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: estado
+          key: estado-${{ github.run_id }}
