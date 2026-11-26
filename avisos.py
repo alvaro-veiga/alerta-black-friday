@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Formas de avisar: Windows (notificação + som)."""
+"""Formas de avisar: celular (ntfy) e Windows (notificação + som)."""
 import html
 import subprocess
 import time
@@ -33,3 +33,34 @@ def bipe(prioridade=False):
             time.sleep(0.08)
     except Exception:
         pass
+
+
+def celular(topico, titulo, texto, link=None, foto=None, prioridade=False):
+    """Manda push pro app ntfy no celular (Android/iPhone)."""
+    import json
+    import urllib.request
+    if not topico:
+        return
+    corpo = {
+        "topic": topico,
+        "title": titulo,
+        "message": texto,
+        "priority": 5 if prioridade else 4,
+        "tags": ["rotating_light" if prioridade else "shopping_cart"],
+    }
+    if link:
+        corpo["click"] = link
+        corpo["actions"] = [{"action": "view", "label": "Abrir oferta", "url": link}]
+    if foto:
+        corpo["attach"] = foto
+    req = urllib.request.Request(
+        "https://ntfy.sh/", data=json.dumps(corpo).encode("utf-8"),
+        headers={"Content-Type": "application/json"})
+    for tentativa in range(3):
+        try:
+            urllib.request.urlopen(req, timeout=15)
+            return
+        except Exception as e:
+            if tentativa == 2:
+                print("  (falha no aviso do celular: %s)" % e)
+            time.sleep(2)
