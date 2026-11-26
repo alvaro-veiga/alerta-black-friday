@@ -25,6 +25,8 @@ def _foto_promobit(caminho):
         return None
     if caminho.startswith("http"):
         return caminho
+    if not caminho.startswith("/"):
+        caminho = "/static/p/" + caminho
     return "https://www.promobit.com.br" + caminho
 
 

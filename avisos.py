@@ -62,5 +62,6 @@ def celular(topico, titulo, texto, link=None, foto=None, prioridade=False):
             return
         except Exception as e:
             if tentativa == 2:
-                print("  (falha no aviso do celular: %s)" % e)
+                detalhe = e.read()[:200] if hasattr(e, "read") else ""
+                print("  (falha no aviso do celular: %s %s)" % (e, detalhe))
             time.sleep(2)
