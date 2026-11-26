@@ -50,3 +50,35 @@ def promobit(paginas=3):
         if not after:
             break
     return ofertas
+
+
+def _preco_no_titulo(t):
+    m = re.search(r"R\$\s?([\d.]+(?:,\d{2})?)", t)
+    if not m:
+        return None
+    try:
+        return float(m.group(1).replace(".", "").replace(",", "."))
+    except ValueError:
+        return None
+
+
+def pelando():
+    """Ofertas recentes do Pelando (não traz preço, tenta tirar do título)."""
+    import html
+    pag = baixar("https://www.pelando.com.br/recentes")
+    m = re.search(r'<script id="feed-schema" type="application/ld\+json">(.*?)</script>', pag, re.S)
+    if not m:
+        return []
+    ofertas = []
+    for p in json.loads(m.group(1)).get("mainEntity", {}).get("hasPart", []):
+        titulo = html.unescape(p.get("name", ""))
+        ofertas.append({
+            "id": "pl-" + p.get("url", ""),
+            "titulo": titulo,
+            "preco": _preco_no_titulo(titulo),
+            "cupom": None,
+            "loja": "Pelando",
+            "foto": None,
+            "link": p.get("url", ""),
+        })
+    return ofertas
