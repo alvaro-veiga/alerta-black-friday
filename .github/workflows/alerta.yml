@@ -4,6 +4,10 @@ on:
   schedule:
     - cron: "0 * * * *"   # tenta a cada hora; só roda um por vez
   workflow_dispatch:
+    inputs:
+      duracao:
+        description: "Minutos rodando (340 = máximo)"
+        default: "340"
 
 concurrency:
   group: alerta
@@ -31,7 +35,7 @@ jobs:
         env:
           NTFY_TOPICO: ${{ secrets.NTFY_TOPICO }}
           MODO: celular
-          DURACAO_MINUTOS: "340"
+          DURACAO_MINUTOS: ${{ inputs.duracao || '340' }}
         run: python alerta.py
 
       - name: Salva estado
