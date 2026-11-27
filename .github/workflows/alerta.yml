@@ -2,7 +2,7 @@ name: alerta
 
 on:
   schedule:
-    - cron: "0 * * * *"   # tenta a cada hora; só roda um por vez
+    - cron: "*/30 * * * *"   # reserva, caso a corrente de execuções quebre
   workflow_dispatch:
     inputs:
       duracao:
@@ -12,6 +12,10 @@ on:
         description: "Mandar aviso de teste pro celular antes"
         type: boolean
         default: false
+
+permissions:
+  contents: read
+  actions: write
 
 concurrency:
   group: alerta
@@ -54,3 +58,9 @@ jobs:
         with:
           path: estado
           key: estado-${{ github.run_id }}
+
+      - name: Emenda a próxima execução
+        if: ${{ !cancelled() && (inputs.duracao || '340') == '340' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh workflow run alerta.yml --ref main -R ${{ github.repository }}
