@@ -2,7 +2,7 @@ name: alerta
 
 on:
   schedule:
-    - cron: "*/30 * * * *"   # reserva, caso a corrente de execuções quebre
+    - cron: "17,47 * * * *"   # reserva, caso a corrente de execuções quebre
   workflow_dispatch:
     inputs:
       duracao:
